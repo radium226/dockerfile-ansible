@@ -1,0 +1,5 @@
+package radium.dockerfile
+
+import radium.dockerfile.task.TupleWithParseImplicits
+
+object implicits extends PathImplicits with OptionImplicits with TupleWithParseImplicits

@@ -1,0 +1,29 @@
+from: "ubuntu"
+tasks:
+ - echo: "coucou"
+ - include: "java.yml"
+# - create_user:
+#    name: "toto"
+#    system: yes
+ - copy:
+    src: "./bim.txt"
+    dest: "/bam/boum/bim/txt"
+ - get_url:
+    url: "http://www.google.fr"
+    dest: "toto"
+ - file:
+    path: "{{ item }}"
+    state: directory
+   with_items:
+    - "bim"
+    - "bamboum"
+ - package:
+    name: "{{ item }}"
+   with_items:
+    - "toto"
+    - "tutu"
+    - "toto"
+# - unzip_file:
+#    strip: yes
+
+entrypoint:
