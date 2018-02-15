@@ -36,7 +36,7 @@ object Include extends TaskCreator {
 
   def yamlFilePath = arg[Path].required
 
-  override def createTask(yaml: Yaml)(implicit config: Config): ValidatedTask = {
+  override def createTask(implicit config: Config) = renderedTemplates { yaml =>
     yamlFilePath
       .transform(resolveFilePath)
       .parse(yaml)

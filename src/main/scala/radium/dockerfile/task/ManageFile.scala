@@ -45,7 +45,7 @@ object ManageFile extends TaskCreator {
 
   override def supportedTaskNames: Seq[TaskName] = Seq("file")
 
-  override def createTask(yaml: Yaml)(implicit config: Config): ValidatedTask = {
+  override def createTask(implicit config: Config) = renderedTemplates { yaml =>
     (filePath, user, mode, state).parse(yaml).mapN(ManageFile.apply)
   }
 }

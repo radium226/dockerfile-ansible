@@ -24,7 +24,7 @@ object DownloadFile extends TaskCreator {
 
   def filePath = arg[Path]("dest").required
 
-  override def createTask(yaml: Yaml)(implicit config: Config): ValidatedTask = {
+  override def createTask(implicit config: Config) = renderedTemplates { yaml =>
     (url, filePath).parse(yaml).mapN(DownloadFile.apply)
   }
 

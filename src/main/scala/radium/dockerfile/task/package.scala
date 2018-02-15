@@ -6,6 +6,7 @@ import java.nio.file.{Path, Paths}
 import cats.data.{NonEmptyList, Validated, ValidatedNel}
 import Validated._
 import cats.implicits._
+import radium.dockerfile.implicits._
 import com.hubspot.jinjava.Jinjava
 import radium.dockerfile.statement._
 
@@ -41,6 +42,12 @@ package object task {
 
   trait TaskCreator {
 
+    def renderedTemplates(f: Yaml => ValidatedTask): Yaml => Vars => ValidatedTask = { yaml: Yaml =>
+      { vars: Vars =>
+        f(yaml.renderTemplates(vars))
+      }
+    }
+
     def arg[T:ValueParser](key: Key) = Arg.byKey(key)
 
     def arg[T:ValueParser] = Arg.whole[T]
@@ -65,7 +72,7 @@ package object task {
 
     def supportedTaskNames: Seq[TaskName]
 
-    def createTask(yaml: Yaml)(implicit config: Config): ValidatedTask
+    def createTask(implicit config: Config): Yaml => Vars => ValidatedTask
 
   }
 
@@ -128,7 +135,7 @@ package object task {
         .collectFirst({
           case taskCreator if taskCreator.supportedTaskNames contains taskName =>
             { yaml: Yaml =>
-              taskCreator.createTask(yaml)(config)
+              taskCreator.createTask(config)(yaml)(Map())
             }
         })
         .getOrElse({ yaml: Yaml =>

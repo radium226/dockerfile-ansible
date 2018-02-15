@@ -4,6 +4,7 @@ import cats.data._
 import cats.implicits._
 import radium.dockerfile.Config
 import radium.dockerfile.statement._
+import radium.dockerfile.task.DownloadFile.renderedTemplates
 
 case class Echo(val message: String) extends Task with GenerateRunStatement with GenericCommand {
 
@@ -17,7 +18,7 @@ object Echo extends TaskCreator {
 
   def message = arg[String].required
 
-  override def createTask(yaml: Yaml)(implicit config: Config): ValidatedTask = {
+  override def createTask(implicit config: Config) = renderedTemplates { yaml =>
     message.parse(yaml).map(Echo.apply)
   }
 }

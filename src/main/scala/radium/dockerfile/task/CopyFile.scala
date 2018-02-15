@@ -4,7 +4,7 @@ import java.nio.file.Path
 
 import cats.data._
 import cats.implicits._
-import radium.dockerfile.Config
+import radium.dockerfile.{Config, Vars}
 import radium.dockerfile.statement._
 import radium.dockerfile.implicits._
 
@@ -24,7 +24,7 @@ object CopyFile extends TaskCreator {
 
   def remoteFilePath = arg[Path]("dest").required
 
-  override def createTask(yaml: Yaml)(implicit config: Config) = {
+  override def createTask(implicit config: Config) = renderedTemplates { yaml: Yaml =>
     (localFilePath, remoteFilePath).parse(yaml).mapN(CopyFile.apply)
   }
 
