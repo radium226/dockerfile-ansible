@@ -23,6 +23,9 @@ tasks:
     - "toto"
     - "tutu"
     - "toto"
+ - shell: |
+    #!/bin/bash
+    echo "This is the entrypoint, baby"
 # - unzip_file:
 #    strip: yes
 

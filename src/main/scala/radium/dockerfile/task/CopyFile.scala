@@ -8,7 +8,7 @@ import radium.dockerfile.{Config, Vars}
 import radium.dockerfile.statement._
 import radium.dockerfile.implicits._
 
-case class CopyFile(val localFilePath: Path, val remoteFilePath: Path) extends Task with GenerateGeneticStatement {
+case class CopyFile(val localFilePath: Path, val remoteFilePath: Path) extends Task with GenerateGenericStatement {
 
   override def statement = CopyStatement(localFilePath, remoteFilePath)
 

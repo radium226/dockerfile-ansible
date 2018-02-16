@@ -9,6 +9,7 @@ import cats.implicits._
 import radium.dockerfile.implicits._
 import com.hubspot.jinjava.Jinjava
 import radium.dockerfile.statement._
+import radium.dockerfile.task.GenerateFile
 
 import scala.collection.JavaConverters._
 
@@ -30,6 +31,8 @@ package object task {
 
   type ValidatedValue[T] = ValidatedNel[Cause, T]
 
+  type Content = Code
+
   trait ValueParser[T] {
 
     def parseValue(yaml: Yaml): ValidatedValue[T]
@@ -39,6 +42,8 @@ package object task {
   type Key = String
 
   type Cause = String
+
+  type Code = String
 
   trait TaskCreator {
 
@@ -96,7 +101,28 @@ package object task {
 
   }
 
-  trait GenerateGeneticStatement extends GenerateStatement with GenericStatement {
+  trait GenericStatements {
+    self: Task with GenerateStatements =>
+
+    override def generateStatements: Function[Distro, Seq[Statement]] = {
+      case _ => statements
+    }
+
+    def statements: Seq[Statement]
+  }
+
+  trait GenerateGenericStatements extends GenerateStatements with GenericStatements {
+    self: Task =>
+
+  }
+
+  trait TranspileAware {
+
+    def onTranspile(): Unit
+
+  }
+
+  trait GenerateGenericStatement extends GenerateStatement with GenericStatement {
     self: Task =>
 
   }
@@ -110,6 +136,32 @@ package object task {
 
   }
 
+  case class FileSpec(val name: Option[Path], val content: Content)
+
+  trait GenerateFiles {
+    self: Task =>
+
+    def provideFileSpecs: PartialFunction[Distro, Seq[FileSpec]]
+
+  }
+
+  trait GenerateFile extends GenerateFiles {
+    self: Task =>
+
+    override def provideFileSpecs: PartialFunction[Distro, Seq[FileSpec]] = provideFileSpec andThen { Seq(_) }
+
+    def provideFileSpec: PartialFunction[Distro, FileSpec]
+
+  }
+
+  trait GenerateGenericFile extends GenerateFile {
+    self: Task =>
+
+    def fileSpec: FileSpec
+
+    override def provideFileSpec: PartialFunction[Distro, FileSpec] = { case _ => fileSpec }
+  }
+
   trait GenericCommand {
     self: GenerateRunStatement =>
 
@@ -120,9 +172,13 @@ package object task {
     def command: Command
   }
 
-  trait Task {
+  trait GenerateStatements {
 
     def generateStatements: Function[Distro, Seq[Statement]]
+
+  }
+
+  trait Task extends GenerateStatements {
 
     def dependsOf: Seq[DependencyName] = Seq()
 
@@ -194,7 +250,8 @@ package object task {
     Echo,
     Include,
     InstallDependencies,
-    ManageFile
+    ManageFile,
+    Shell
   )
 
 }

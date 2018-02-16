@@ -57,5 +57,6 @@ lazy val root = (project in file("."))
     libraryDependencies += "com.hubspot.jinjava" % "jinjava" % "2.3.5",
     libraryDependencies += "org.typelevel" %% "cats-core" % "1.0.1",
     libraryDependencies += "com.chuusai" % "shapeless_2.12" % "2.3.3",
-    libraryDependencies += "io.github.scala-hamsters" %% "hamsters" % "2.5.0"
+    libraryDependencies += "io.github.scala-hamsters" %% "hamsters" % "2.5.0",
+    libraryDependencies ++= Seq("com.roundeights" %% "hasher" % "1.2.0")
 )
