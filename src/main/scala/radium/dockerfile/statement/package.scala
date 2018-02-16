@@ -9,11 +9,11 @@ package object statement {
 
   type DirectiveValue = Either[String, Seq[String]]
 
-  type Command = String
+  type Command = Either[String, Seq[String]]
 
   sealed trait Statement {
 
-    private def quote(text: String): String = s""""${text}""""
+    def quote(text: String): String = s""""${text}""""
 
     def toSource(): Source = {
 
@@ -120,6 +120,22 @@ package object statement {
     override def directiveName = "ENV"
 
     override def directiveValue = Left(s"""${variableName}="${variableValue}"""")
+
+  }
+
+  case class EntryPointStatement(val command: Command) extends Statement {
+
+    override def directiveName: DirectiveName = "ENTRYPOINT"
+
+    override def directiveValue: DirectiveValue = command
+
+  }
+
+  case class CommandStatement(val command: Command) extends Statement {
+
+    override def directiveName: DirectiveName = "CMD"
+
+    override def directiveValue: DirectiveValue = command
 
   }
 

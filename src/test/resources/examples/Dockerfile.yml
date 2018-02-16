@@ -29,4 +29,5 @@ tasks:
 # - unzip_file:
 #    strip: yes
 
-entrypoint:
+execute:
+  java: "toto"

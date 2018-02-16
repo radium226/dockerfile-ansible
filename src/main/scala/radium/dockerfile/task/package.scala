@@ -39,6 +39,42 @@ package object task {
 
   }
 
+  object ValueParser {
+
+    implicit val string = new ValueParser[String] {
+
+      override def parseValue(yaml: Yaml): ValidatedValue[String] = yaml.toString.validNel[Cause]
+
+    }
+
+    implicit val path = new ValueParser[Path] {
+
+      override def parseValue(yaml: Yaml): ValidatedValue[Path] = Paths.get(yaml.toString).validNel[Cause]
+
+    }
+
+    implicit val url = new ValueParser[URL] {
+
+      override def parseValue(yaml: Yaml): ValidatedValue[URL] = new URL(yaml.toString).validNel[Cause]
+
+    }
+
+    implicit val command = new ValueParser[Command] {
+
+      override def parseValue(yaml: Yaml): ValidatedValue[Command] = yaml match {
+        case commandAsString: String =>
+          Left(commandAsString).validNel[Cause]
+
+        case commandAsSeq: Seq[String] =>
+          Right(commandAsSeq).validNel[Cause]
+
+        case _ =>
+          invalidNel("Unable to parse command")
+      }
+
+    }
+  }
+
   type Key = String
 
   type Cause = String
@@ -57,23 +93,7 @@ package object task {
 
     def arg[T:ValueParser] = Arg.whole[T]
 
-    implicit val stringParser = new ValueParser[String] {
-
-      override def parseValue(yaml: Yaml): ValidatedValue[String] = yaml.toString.validNel[Cause]
-
-    }
-
-    implicit val pathParser = new ValueParser[Path] {
-
-      override def parseValue(yaml: Yaml): ValidatedValue[Path] = Paths.get(yaml.toString).validNel[Cause]
-
-    }
-
-    implicit val urlParser = new ValueParser[URL] {
-
-      override def parseValue(yaml: Yaml): ValidatedValue[URL] = new URL(yaml.toString).validNel[Cause]
-
-    }
+    import ValueParser._
 
     def supportedTaskNames: Seq[TaskName]
 
@@ -136,10 +156,41 @@ package object task {
 
   }
 
-  case class FileSpec(val name: Option[Path], val content: Content)
+  case class FileSpec(val path: Path, val content: Content)
+
+  object FileSpec {
+
+    def collectFileSpecs(tasks: Seq[Task]): PartialFunction[Distro, Seq[FileSpec]] = new PartialFunction[Distro, Seq[FileSpec]] {
+
+      private def collectFileSpecProviders(task: Seq[Task]): Seq[Task with GenerateFiles] = {
+        task
+          .collect({
+            case task: GenerateFiles => task
+          })
+      }
+
+      override def isDefinedAt(distro: Distro): Boolean = collectFileSpecProviders(tasks)
+        .map(_.provideFileSpecs)
+        .forall(_.isDefinedAt(distro))
+
+      override def apply(distro: Distro): Seq[FileSpec] = collectFileSpecProviders(tasks)
+        .map(_.provideFileSpecs(distro))
+        .flatten
+    }
+
+
+      /*new Partia{ distro: Distro =>
+      tasks
+        .collect({
+          case task: GenerateFiles if task.provideFileSpecs.isDefinedAt(distro) =>
+            task.provideFileSpecs(distro)
+        })
+        .flatten
+    }*/
+
+  }
 
   trait GenerateFiles {
-    self: Task =>
 
     def provideFileSpecs: PartialFunction[Distro, Seq[FileSpec]]
 

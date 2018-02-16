@@ -11,6 +11,7 @@ import radium.dockerfile.statement.Statement
 import scala.collection.JavaConverters._
 
 import cats.implicits._
+import radium.dockerfile.implicits._
 
 case class Dockerfile(distro: Distro, tasks: Seq[Task], vars: Vars)
 
@@ -89,12 +90,14 @@ object Dockerfile {
     }
   }
 
-  def transpile(dockerfile: Dockerfile)(implicit config: Config): Source = {
+  def transpile(dockerfile: Dockerfile)(implicit config: Config): Seq[FileSpec] = {
+    val fileSpecs = FileSpec.collectFileSpecs(dockerfile.tasks)(dockerfile.distro)
+
     val dependencyNames = Task.dependsOf(dockerfile.tasks)
     val generateStatements = Task.generateStatements(InstallDependencies(dependencyNames) +: dockerfile.tasks)
     val statements = generateStatements(dockerfile.distro)
     val source = Statement.toSource(statements)
-    source
+    FileSpec("Dockerfile", source) +: fileSpecs
   }
 
 }

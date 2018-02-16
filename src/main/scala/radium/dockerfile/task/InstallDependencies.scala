@@ -3,6 +3,7 @@ package radium.dockerfile.task
 import cats.data.ValidatedNel
 import radium.dockerfile.task.Include.renderedTemplates
 import radium.dockerfile.{Alpine, Config, Ubuntu}
+import radium.dockerfile.implicits._
 
 case class InstallDependencies(dependencyNames: Seq[DependencyName]) extends Task with GenerateRunStatement {
 

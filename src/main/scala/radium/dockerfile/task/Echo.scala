@@ -1,10 +1,8 @@
 package radium.dockerfile.task
 
-import cats.data._
-import cats.implicits._
 import radium.dockerfile.Config
 import radium.dockerfile.statement._
-import radium.dockerfile.task.DownloadFile.renderedTemplates
+import radium.dockerfile.implicits._
 
 case class Echo(val message: String) extends Task with GenerateRunStatement with GenericCommand {
 

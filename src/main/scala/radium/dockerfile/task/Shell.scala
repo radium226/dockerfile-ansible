@@ -10,11 +10,11 @@ import scala.language.postfixOps
 
 case class Shell(val content: Code) extends Task with GenerateGenericStatements with GenerateGenericFile {
 
-  val fileName: Path = Paths.get(s"shell-${content.sha1}.sh")
+  val fileName: Path = Paths.get(s"shell-${content.sha1.hash.substring(0, 7)}.sh")
   val localFilePath: Path = fileName
   val remoteFilePath: Path = Paths.get("/tmp").resolve(fileName)
 
-  override def fileSpec: FileSpec = FileSpec(Some(localFilePath), content)
+  override def fileSpec: FileSpec = FileSpec(localFilePath, content)
 
   override def statements = Seq(
     CopyStatement(localFilePath, remoteFilePath),
