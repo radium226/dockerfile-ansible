@@ -2,32 +2,33 @@ package radium.dockerfile.task
 
 import java.nio.file.Path
 
-import cats.data._
-import cats.implicits._
-import radium.dockerfile.{Config, Vars}
-import radium.dockerfile.statement._
+import radium.dockerfile._
+import radium.dockerfile.yaml._
+import radium.dockerfile.arg._
+import radium.dockerfile.{ statement => s }
 import radium.dockerfile.implicits._
+import radium.dockerfile.transpilation._
 
 case class CopyFile(val localFilePath: Path, val remoteFilePath: Path) extends Task with GenerateGenericStatement {
 
-  override def statement = CopyStatement(localFilePath, remoteFilePath)
+  override def statement = s.Copy(localFilePath, remoteFilePath)
 
 }
 
 
 
-object CopyFile extends TaskCreator {
+object CopyFile extends TaskParser {
 
   override def supportedTaskNames: Seq[TaskName] = Seq("copy")
 
-  def localFilePath = arg[Path]("src").required
+  def localFilePath = Arg.byKey[Path]("src").required
 
-  def remoteFilePath = arg[Path]("dest").required
+  def remoteFilePath = Arg.byKey[Path]("dest").required
 
-  override def createTask(implicit config: Config) = renderedTemplates { yaml: Yaml =>
+  override def parse(config: Config) = expandVars { yaml =>
+    import cats.implicits._
     (localFilePath, remoteFilePath).parse(yaml).mapN(CopyFile.apply)
   }
-
 
 }
 

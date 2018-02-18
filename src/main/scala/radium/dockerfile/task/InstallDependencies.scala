@@ -1,9 +1,11 @@
 package radium.dockerfile.task
 
-import cats.data.ValidatedNel
-import radium.dockerfile.task.Include.renderedTemplates
-import radium.dockerfile.{Alpine, Config, Ubuntu}
+import radium.dockerfile._
+import radium.dockerfile.yaml._
+import radium.dockerfile.arg._
+import radium.dockerfile.{ statement => s }
 import radium.dockerfile.implicits._
+import radium.dockerfile.transpilation._
 
 case class InstallDependencies(dependencyNames: Seq[DependencyName]) extends Task with GenerateRunStatement {
 
@@ -20,17 +22,17 @@ case class InstallDependencies(dependencyNames: Seq[DependencyName]) extends Tas
 
 }
 
-object InstallDependencies extends TaskCreator {
+object InstallDependencies extends TaskParser {
 
   override def supportedTaskNames: Seq[TaskName] = Seq("package")
 
-  def dependencyName = arg[String]("name").required
+  def dependencyName = Arg.byKey[String]("name").required
 
   def apply(dependencyName: DependencyName): InstallDependencies = {
     new InstallDependencies(Seq(dependencyName))
   }
 
-  override def createTask(implicit config: Config) = renderedTemplates { yaml =>
+  override def parse(config: Config) = expandVars { yaml =>
     dependencyName.parse(yaml).map(InstallDependencies.apply)
   }
 }

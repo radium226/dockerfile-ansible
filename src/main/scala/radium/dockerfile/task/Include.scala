@@ -1,48 +1,43 @@
 package radium.dockerfile.task
 
-import java.nio.file.{Files, Path, Paths}
-
-import cats.implicits._
+import java.nio.file.{ Files, Path }
 
 import radium.dockerfile._
-import radium.dockerfile.statement._
+import radium.dockerfile.arg._
+import radium.dockerfile.yaml._
+import radium.dockerfile.{ statement => s }
+import s.Statement
+import radium.dockerfile.transpilation._
+import radium.dockerfile.implicits._
 
-case class Include(val filePath: Path, val config: Config) extends Task {
+case class Include(tasks: Seq[Task]) extends Task {
 
-  private def includedTasks: Seq[Task] = Dockerfile.parseTasks(filePath, Map())(config).getOrElse(Seq()) // TODO
+  override def dependsOf: Seq[DependencyName] = Task.dependsOf(tasks)
 
-  override def dependsOf: Seq[DependencyName] = Task.dependsOf(includedTasks)
-
-  override def generateStatements: Function[Distro, Seq[Statement]] = Task.generateStatements(includedTasks)
+  override def generateStatements = Statement.generateStatements(tasks)
 
 }
 
-object Include extends TaskCreator {
+object Include extends TaskParser {
 
-  def resolveFilePath(filePath: Path)(implicit config: Config): ValidatedValue[Path] = filePath match {
+  def resolveFilePath(config: Config): Path => Validated[Path] = {
     case filePath if filePath.isAbsolute =>
-      filePath.validNel[Cause]
+      filePath.valid
     case filePath =>
       config.includeFolderPaths
-          .map(_.resolve(filePath))
-          .filter({ resolvedFilePath =>
-            println(s"resolvedFilePath = ${resolvedFilePath}")
-            Files.exists(resolvedFilePath)
-          })
-          .headOption.toValidNel[Cause](s"${filePath.toString} has not been found")
+        .map(_.resolve(filePath))
+        .filter({ resolvedFilePath =>
+          Files.exists(resolvedFilePath)
+        })
+        .headOption.toValidated(s"${filePath.toString} has not been found")
   }
 
   override def supportedTaskNames: Seq[TaskName] = Seq("include")
 
-  def yamlFilePath = arg[Path].required
+  def filePath = Arg.whole[Path].required
 
-  override def createTask(implicit config: Config) = renderedTemplates { yaml =>
-    yamlFilePath
-      .transform(resolveFilePath)
-      .parse(yaml)
-      .map({ filePath =>
-        Include.apply(filePath, config)
-      })
+  override def parse(config: Config) = { (yaml, vars) =>
+    filePath.transform(resolveFilePath(config)).parse(yaml) andThen Yaml.parse andThen { Task.parse(config)(_, vars) } map Include.apply
   }
 }
 

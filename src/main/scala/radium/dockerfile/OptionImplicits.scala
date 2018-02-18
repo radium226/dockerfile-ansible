@@ -2,7 +2,7 @@ package radium.dockerfile
 
 trait OptionImplicits {
 
-  class OptionWithToSeq[T](option: Option[T]) {
+  implicit class OptionWithToSeq[T](option: Option[T]) {
 
     def toSeq(): Seq[T] = {
       option match {

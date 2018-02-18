@@ -3,34 +3,38 @@ package radium.dockerfile.task
 import java.nio.file.{Files, Path, Paths}
 
 import radium.dockerfile._
+import radium.dockerfile.yaml._
+import radium.dockerfile.arg._
 import radium.dockerfile.statement._
 import radium.dockerfile.implicits._
+import radium.dockerfile.transpilation._
 import com.roundeights.hasher.Implicits._
 import scala.language.postfixOps
 
-case class Shell(val content: Code) extends Task with GenerateGenericStatements with GenerateGenericFile {
+case class Shell(val source: Source) extends Task with GenerateGenericStatements with GenerateGenericFile {
 
-  val fileName: Path = Paths.get(s"shell-${content.sha1.hash.substring(0, 7)}.sh")
+  val fileName: Path = Paths.get(s"shell-${source.sha1.hash.substring(0, 7)}.sh")
   val localFilePath: Path = fileName
   val remoteFilePath: Path = Paths.get("/tmp").resolve(fileName)
 
-  override def fileSpec: FileSpec = FileSpec(localFilePath, content)
+  override def fileSpec: FileSpec = FileSpec(localFilePath, source)
 
   override def statements = Seq(
-    CopyStatement(localFilePath, remoteFilePath),
-    RunStatement(Seq(s"chmod +x ${remoteFilePath}", s"${remoteFilePath}"))
+    Copy(localFilePath, remoteFilePath),
+    Run.single(s"chmod +x ${remoteFilePath}"),
+    Run.single(s"${remoteFilePath}")
   )
 
 }
 
-object Shell extends TaskCreator {
+object Shell extends TaskParser {
 
   override def supportedTaskNames: Seq[TaskName] = Seq("shell")
 
-  def content = Arg.whole[Code].required
+  def source = Arg.whole[Source].required
 
-  override def createTask(implicit config: Config) = renderedTemplates { yaml =>
-    content.parse(yaml).map(Shell.apply)
+  override def parse(config: Config) = expandVars { yaml =>
+    source.parse(yaml).map(Shell.apply)
   }
 
 }

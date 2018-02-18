@@ -3,28 +3,32 @@ package radium.dockerfile.task
 import java.net.URL
 import java.nio.file.Path
 
-import cats.data._
-import cats.implicits._
-import radium.dockerfile.Config
-import radium.dockerfile.statement._
+import radium.dockerfile._
+import radium.dockerfile.yaml._
+import radium.dockerfile.arg._
+import radium.dockerfile.{ statement => s }
 import radium.dockerfile.implicits._
+import radium.dockerfile.transpilation._
 
-case class DownloadFile(fromUrl: URL, toFilePath: Path) extends Task with GenerateRunStatement with GenericCommand {
+case class DownloadFile(fromUrl: URL, toFilePath: Path) extends Task with GenerateRunStatement {
 
   override def dependsOf: Seq[DependencyName] = super.dependsOf ++ Seq("curl")
 
-  override def command: Command = s"curl ${fromUrl.toString} -O ${toFilePath.toString}"
+  override def provideCommand = { distro: Distro =>
+    s"curl ${fromUrl.toString} -O ${toFilePath.toString}"
+  }
 
 }
 
-object DownloadFile extends TaskCreator {
+object DownloadFile extends TaskParser {
   override def supportedTaskNames = Seq("get_url", "download")
 
-  def url = arg[URL]("url").required
+  def url = Arg.byKey[URL]("url").required
 
-  def filePath = arg[Path]("dest").required
+  def filePath = Arg.byKey[Path]("dest").required
 
-  override def createTask(implicit config: Config) = renderedTemplates { yaml =>
+  override def parse(config: Config) = expandVars { yaml =>
+    import cats.implicits._
     (url, filePath).parse(yaml).mapN(DownloadFile.apply)
   }
 

@@ -1,20 +1,12 @@
 package radium.dockerfile.execute
 
-import cats.data.ValidatedNel
-import radium.dockerfile.task.{Cause, Yaml}
-
-trait Parser[T] {
-
-  def parse(yaml: Yaml): ValidatedNel[Cause, T]
-
-}
+import radium.dockerfile._
+import radium.dockerfile.arg.ValueParserImplicits
 
 trait Keyed {
 
-  def keyName: String
+  def keyName: String // TODO Type that!
 
 }
 
-trait ExecuteParser extends Parser[Execute] {
-
-}
+trait ExecuteParser extends Parser[Execute] with ValueParserImplicits

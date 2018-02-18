@@ -2,15 +2,19 @@ package radium.dockerfile
 
 import java.nio.file.Path
 
-import cats.data.Validated.{Invalid, Valid}
+import radium.dockerfile._
+import radium.dockerfile.yaml._
 import radium.dockerfile.implicits._
 
 object Transpile extends App {
 
-  val yamlFilePath: Path = "/home/groupevsc.com/adrien_besnard/Projects/Ongoing/Others/dockerfile-yaml/src/test/resources/examples/Dockerfile.yml"
+  val filePath: Path = "/home/adrien/Personal/Projects/dockerfile-yaml/src/test/resources/examples/Dockerfile.yml"
 
-  implicit val config = Config(Seq("/home/groupevsc.com/adrien_besnard/Projects/Ongoing/Others/dockerfile-yaml/src/test/resources/examples"))
-  Dockerfile.parse(yamlFilePath).map(Dockerfile.transpile) match {
+  val config = Config(Seq("/home/adrien/Personal/Projects/dockerfile-yaml/src/test/resources/examples"))
+
+  val vars = Map[String, AnyRef]()
+
+  Yaml.parse(filePath) andThen { Dockerfile.parse(config)(_, vars) } map Dockerfile.transpile(config) match {
     case Valid(fileSpecs) =>
       fileSpecs.foreach({ fileSpec =>
         println(s"${fileSpec.path} : ${fileSpec.content}")

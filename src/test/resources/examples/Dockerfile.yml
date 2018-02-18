@@ -29,5 +29,5 @@ tasks:
 # - unzip_file:
 #    strip: yes
 
-execute:
-  java: "toto"
+execute: |
+  bash -c toto, tata

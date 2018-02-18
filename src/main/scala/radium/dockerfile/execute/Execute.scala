@@ -1,58 +1,43 @@
 package radium.dockerfile.execute
 
 import cats.Traverse
-import radium.dockerfile.{Distro, statement}
-import radium.dockerfile.statement._
-import radium.dockerfile.task._
-import cats.data.{Validated, ValidatedNel}
-import cats.implicits._
+
+import radium.dockerfile._
+import radium.dockerfile.yaml._
+import radium.dockerfile.arg._
+import radium.dockerfile.transpilation._
+import radium.dockerfile.{ statement => s }
 import radium.dockerfile.implicits._
 
-trait Execute extends GenerateStatements with GenerateFiles {
-
-  trait No[T] {
-
-    def empty: T
-
-  }
-
-  implicit val emptyFileSpecs = new No[Seq[FileSpec]] {
-
-    override def empty: Seq[FileSpec] = Seq()
-
-  }
-
-  def no[T : No]: PartialFunction[Distro, T] = { case _ => implicitly[No[T]].empty }
-
-  def generic[T](block: => T): PartialFunction[Distro, T] = {
-    case _ => block
-  }
-
-  def single[T](f: PartialFunction[Distro, T]): PartialFunction[Distro, Seq[T]] = f andThen { Seq(_) }
-
-}
+trait Execute extends GenerateStatements with GenerateFiles
 
 object Execute {
 
-  def availableExecuteParsers = Seq[ExecuteParser with Keyed](Java)
+  def availableParsers = Seq[ExecuteParser with Keyed](Java, Shell)
 
-  def parse(yaml: Yaml): ValidatedNel[Cause, Seq[Execute]] = yaml match {
-    case command: String =>
-      Seq(Default(command)).validNel[Cause]
+  def parse(config: Config): (Yaml, Vars) => Validated[Seq[Execute]] = {
+    case (Some(yaml: Yaml), vars) =>
+      parse(config)(yaml, vars)
 
-    case keyedYaml: Map[String, AnyRef] =>
-      val l = keyedYaml
-        .map({ case (keyName, yaml) =>
-          availableExecuteParsers
-            .collectFirst({
-              case parser if parser.keyName == keyName =>
-                parser
-            })
-            .toValidNel(s"No execute matching the ${keyName} key was found")
-            .andThen(_.parse(yaml))
-        })
-        .toList
-      Traverse[List].sequence(l)
+    case (command: String, vars) =>
+      Seq(Default(command)).valid
+
+    case (command: Seq[String], vars) =>
+      Seq(Default(command)).valid
+
+    case (keyedYaml: Map[String, AnyRef], vars) =>
+     keyedYaml
+      .map({ case (keyName, yaml) =>
+        availableParsers
+          .collectFirst({
+            case parser if parser.keyName == keyName =>
+              parser
+          })
+          .toValidated(s"No execute matching the ${keyName} key was found")
+          .andThen(_.parse(config)(yaml, vars))
+      })
+      .toSeq
+      .traverse
   }
 
 
@@ -63,18 +48,16 @@ case class Default(command: Command) extends Execute {
   override def provideFileSpecs = no
 
   override def generateStatements = generic {
-    Seq(CommandStatement(command))
+    Seq(s.Command(command))
   }
 
 }
 
 object Default extends ExecuteParser {
 
-  import ValueParser._
-
   def command = Arg.whole[Command].required
 
-  override def parse(yaml: Yaml): ValidatedNel[Cause, Execute] = {
+  override def parse(config: Config) = { (yaml, vars) =>
     command.parse(yaml).map(Default.apply)
   }
 

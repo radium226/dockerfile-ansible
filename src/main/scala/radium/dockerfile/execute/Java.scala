@@ -2,11 +2,11 @@ package radium.dockerfile.execute
 
 import java.nio.file.Path
 
+import radium.dockerfile._
+import radium.dockerfile.arg._
+import radium.dockerfile.yaml._
+import radium.dockerfile.{ statement => s }
 import radium.dockerfile.implicits._
-
-import cats.data._
-import radium.dockerfile.statement._
-import radium.dockerfile.task._
 
 case class Java(jarFilePath: Path) extends Execute {
 
@@ -15,7 +15,7 @@ case class Java(jarFilePath: Path) extends Execute {
 
   override def generateStatements = single {
     generic {
-      CommandStatement(Seq("java", "-jar", s"${jarFilePath}"))
+      s.Command(Seq("java", "-jar", s"${jarFilePath}"))
     }
   }
 }
@@ -24,9 +24,9 @@ object Java extends ExecuteParser with Keyed {
 
   override def keyName = "java"
 
-  def jarFilePath = Arg.byKey[Path]("java").required
+  def jarFilePath = Arg.byKey[Path]("jar").required
 
-  def parse(yaml: Yaml): ValidatedNel[Cause, Execute] = {
+  override def parse(config: Config) = expandVars { yaml =>
     jarFilePath.parse(yaml).map(Java.apply)
   }
 

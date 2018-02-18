@@ -2,11 +2,10 @@ package radium.dockerfile.yaml
 
 import com.hubspot.jinjava.Jinjava
 import radium.dockerfile.Vars
-import radium.dockerfile.task.Yaml
 
 import scala.collection.JavaConverters._
 
-trait YamlImplicits {
+trait Implicits {
 
   implicit class YamlWithRender(yaml: Yaml) {
 
