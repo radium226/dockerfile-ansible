@@ -103,17 +103,24 @@ case class Env(val variableName: String, val variableValue: String) extends Stat
 
 case class EntryPoint(val command: d.Command) extends Statement {
 
-  override def directiveName: DirectiveName = "ENTRYPOINT"
+  override def directiveName = "ENTRYPOINT"
 
-  override def directiveValue: DirectiveValue = command
+  override def directiveValue = command
 
 }
 
 case class Command(val command: d.Command) extends Statement {
 
-  override def directiveName: DirectiveName = "CMD"
+  override def directiveName = "CMD"
 
-  override def directiveValue: DirectiveValue = command
+  override def directiveValue = command
 
 }
 
+case class From(val imageName: String) extends Statement {
+
+  override def directiveName = "FROM"
+
+  override def directiveValue = imageName
+
+}

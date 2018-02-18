@@ -24,7 +24,7 @@ object Include extends TaskParser {
     case filePath if filePath.isAbsolute =>
       filePath.valid
     case filePath =>
-      config.includeFolderPaths
+      config.includedFolderPaths
         .map(_.resolve(filePath))
         .filter({ resolvedFilePath =>
           Files.exists(resolvedFilePath)

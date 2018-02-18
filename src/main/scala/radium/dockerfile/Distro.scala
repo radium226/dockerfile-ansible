@@ -1,6 +1,7 @@
 package radium.dockerfile
 
 import radium.dockerfile.implicits._
+import radium.dockerfile.statement._
 
 sealed trait Distro {
 
@@ -28,6 +29,10 @@ object Distro extends Parser[Distro] {
 
     case _ =>
       "The YAML block has a bad format for distro".invalid
+  }
+
+  def generateStatements(config: Config): Distro => Seq[Statement] = { distro =>
+    Seq(From(distro.name))
   }
 
 }

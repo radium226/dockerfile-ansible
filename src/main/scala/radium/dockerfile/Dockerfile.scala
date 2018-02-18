@@ -40,7 +40,7 @@ object Dockerfile {
 
     val dependencyNames = Task.dependsOf(dockerfile.tasks)
     val generateStatements = Statement.generateStatements(InstallDependencies(dependencyNames) +: dockerfile.tasks)
-    val statements = generateStatements(dockerfile.distro) ++ Statement.generateStatements(dockerfile.executes)(dockerfile.distro)
+    val statements = Distro.generateStatements(config)(dockerfile.distro) ++ generateStatements(dockerfile.distro) ++ Statement.generateStatements(dockerfile.executes)(dockerfile.distro)
     val source = Statement.toSource(statements)
     FileSpec("Dockerfile", source) +: fileSpecs
   }
