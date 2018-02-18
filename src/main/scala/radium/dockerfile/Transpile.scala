@@ -22,7 +22,7 @@ object Transpile extends App {
 
     val config = opt[Config](name = "config", default = Some(ConfigFactory.load()))
 
-    val vars = propsLong[String](name = "vars")
+    val vars = propsLong[String](name = "var")
 
     val inputFilePath = trailArg[Path](descr = "Input Dockerfile")
 

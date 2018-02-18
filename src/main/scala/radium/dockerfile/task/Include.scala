@@ -32,12 +32,17 @@ object Include extends TaskParser {
         .headOption.toValidated(s"${filePath.toString} has not been found")
   }
 
-  override def supportedTaskNames: Seq[TaskName] = Seq("include")
+  override def supportedTaskNames = Seq("include")
 
   def filePath = Arg.whole[Path].required
 
   override def parse(config: Config) = { (yaml, vars) =>
-    filePath.transform(resolveFilePath(config)).parse(yaml) andThen Yaml.parse andThen { Task.parse(config)(_, vars) } map Include.apply
+    filePath
+      .transform(resolveFilePath(config))
+      .parse(yaml)
+      .andThen(Yaml.parse)
+      .andThen(Task.parse(config)(_, vars))
+      .map(Include.apply)
   }
 }
 

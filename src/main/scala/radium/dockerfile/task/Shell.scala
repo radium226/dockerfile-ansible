@@ -17,7 +17,7 @@ case class Shell(val source: Source) extends Task with GenerateGenericStatements
   val localFilePath: Path = fileName
   val remoteFilePath: Path = Paths.get("/tmp").resolve(fileName)
 
-  override def fileSpec: FileSpec = FileSpec(localFilePath, source)
+  override def fileSpec = FileSpec(localFilePath, source)
 
   override def statements = Seq(
     Copy(localFilePath, remoteFilePath),
@@ -29,7 +29,7 @@ case class Shell(val source: Source) extends Task with GenerateGenericStatements
 
 object Shell extends TaskParser {
 
-  override def supportedTaskNames: Seq[TaskName] = Seq("shell")
+  override def supportedTaskNames = Seq("shell")
 
   def source = Arg.whole[Source].required
 

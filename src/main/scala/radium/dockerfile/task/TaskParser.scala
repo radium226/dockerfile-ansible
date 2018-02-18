@@ -7,12 +7,6 @@ import radium.dockerfile.implicits._
 
 trait TaskParser extends Parser[Task] with ValueParserImplicits {
 
-  /*def renderedTemplates(f: Yaml => Validated[Task]): Yaml => Vars => Validated[Task] = { yaml: Yaml =>
-  { vars: Vars =>
-    f(yaml.renderTemplates(vars))
-  }
-  }*/
-
   def supportedTaskNames: Seq[TaskName]
 
 }

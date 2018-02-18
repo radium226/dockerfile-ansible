@@ -24,7 +24,7 @@ case class InstallDependencies(dependencyNames: Seq[DependencyName]) extends Tas
 
 object InstallDependencies extends TaskParser {
 
-  override def supportedTaskNames: Seq[TaskName] = Seq("package")
+  override def supportedTaskNames = Seq("package")
 
   def dependencyName = Arg.byKey[String]("name").required
 

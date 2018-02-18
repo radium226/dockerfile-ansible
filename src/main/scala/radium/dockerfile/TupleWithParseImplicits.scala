@@ -1,8 +1,7 @@
-package radium.dockerfile.task
+package radium.dockerfile
 
-import radium.dockerfile._
-import radium.dockerfile.yaml._
 import radium.dockerfile.arg.Arg
+import radium.dockerfile.yaml._
 
 trait TupleWithParseImplicits {
 

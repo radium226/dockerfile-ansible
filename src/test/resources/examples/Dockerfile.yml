@@ -21,7 +21,7 @@ tasks:
     name: "{{ item }}"
    with_items:
     - "toto"
-    - "tutu"
+    - "{{ ta_chatte }}"
     - "toto"
  - shell: |
     #!/bin/bash
@@ -29,5 +29,6 @@ tasks:
 # - unzip_file:
 #    strip: yes
 
-execute: |
-  bash -c toto, tata
+execute:
+  java:
+    jar: "coucou"

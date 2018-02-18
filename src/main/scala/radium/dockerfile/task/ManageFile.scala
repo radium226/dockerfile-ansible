@@ -14,18 +14,17 @@ case class ManageFile(filePath: Path, user: Option[User], mode: Option[Mode], st
 
   import ManageFile._
 
-  override def generateStatements: Function[Distro, Seq[Statement]] = {
-    case _ =>
-      (state match {
-        case Directory =>
-          Seq(Run.single(s"mkdir -p ${filePath.toString}"))
-        case Absent =>
-          Seq(Run.single(s"rm -Rf ${filePath.toString}"))
-      }) ++ mode.map({ mode =>
-        Run.single(s"chmod ${mode} ${filePath.toString}")
-      }).toSeq ++ user.map({ user =>
-        Run.single(s"chown ${user} ${filePath.toString}")
-      }).toSeq
+  override def generateStatements = generic {
+    (state match {
+      case Directory =>
+        Seq(Run.single(s"mkdir -p ${filePath.toString}"))
+      case Absent =>
+        Seq(Run.single(s"rm -Rf ${filePath.toString}"))
+    }) ++ mode.map({ mode =>
+      Run.single(s"chmod ${mode} ${filePath.toString}")
+    }).toSeq ++ user.map({ user =>
+      Run.single(s"chown ${user} ${filePath.toString}")
+    }).toSeq
   }
 }
 
