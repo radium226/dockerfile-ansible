@@ -1,7 +1,7 @@
 package radium.dockerfile.task
 
 import radium.dockerfile._
-import radium.dockerfile.arg._
+
 import radium.dockerfile.yaml._
 import radium.dockerfile.implicits._
 

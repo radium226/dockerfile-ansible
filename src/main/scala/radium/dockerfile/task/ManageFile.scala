@@ -5,7 +5,7 @@ import java.nio.file.Path
 import radium.dockerfile._
 import radium.dockerfile.Config
 import radium.dockerfile.yaml._
-import radium.dockerfile.arg._
+
 import radium.dockerfile.statement._
 import radium.dockerfile.implicits._
 import radium.dockerfile.transpilation._
@@ -36,13 +36,13 @@ object ManageFile extends TaskParser {
 
   val Absent: State = "absent"
 
-  def filePath = Arg.byKey[Path]("path").required
+  def filePath = Binding.byKey[Path]("path").required
 
-  def user = Arg.byKey[User]("user")
+  def user = Binding.byKey[User]("user")
 
-  def mode = Arg.byKey[Mode]("mode")
+  def mode = Binding.byKey[Mode]("mode")
 
-  def state = Arg.byKey[State]("state").required
+  def state = Binding.byKey[State]("state").required
 
   override def supportedTaskNames: Seq[TaskName] = Seq("file")
 

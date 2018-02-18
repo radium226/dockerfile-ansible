@@ -3,7 +3,7 @@ package radium.dockerfile.task
 import java.nio.file.{ Files, Path }
 
 import radium.dockerfile._
-import radium.dockerfile.arg._
+
 import radium.dockerfile.yaml._
 import radium.dockerfile.{ statement => s }
 import s.Statement
@@ -34,12 +34,12 @@ object Include extends TaskParser {
 
   override def supportedTaskNames = Seq("include")
 
-  def filePath = Arg.whole[Path].required
+  def filePath = Binding.whole[Path].required
 
   override def parse(config: Config) = { (yaml, vars) =>
     filePath
       .transform(resolveFilePath(config))
-      .parse(yaml)
+      .bind(yaml)
       .andThen(Yaml.parse)
       .andThen(Task.parse(config)(_, vars))
       .map(Include.apply)

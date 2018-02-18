@@ -4,7 +4,7 @@ import java.nio.file.{Files, Path, Paths}
 
 import radium.dockerfile._
 import radium.dockerfile.yaml._
-import radium.dockerfile.arg._
+
 import radium.dockerfile.statement._
 import radium.dockerfile.implicits._
 import radium.dockerfile.transpilation._
@@ -31,10 +31,10 @@ object Shell extends TaskParser {
 
   override def supportedTaskNames = Seq("shell")
 
-  def source = Arg.whole[Source].required
+  def source = Binding.whole[Source].required
 
   override def parse(config: Config) = expandVars { yaml =>
-    source.parse(yaml).map(Shell.apply)
+    source.bind(yaml).map(Shell.apply)
   }
 
 }

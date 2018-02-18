@@ -5,7 +5,7 @@ import java.nio.file.Path
 
 import radium.dockerfile._
 import radium.dockerfile.yaml._
-import radium.dockerfile.arg._
+
 import radium.dockerfile.{ statement => s }
 import radium.dockerfile.implicits._
 import radium.dockerfile.transpilation._
@@ -23,9 +23,9 @@ case class DownloadFile(fromUrl: URL, toFilePath: Path) extends Task with Genera
 object DownloadFile extends TaskParser {
   override def supportedTaskNames = Seq("get_url", "download")
 
-  def url = Arg.byKey[URL]("url").required
+  def url = Binding.byKey[URL]("url").required
 
-  def filePath = Arg.byKey[Path]("dest").required
+  def filePath = Binding.byKey[Path]("dest").required
 
   override def parse(config: Config) = expandVars { yaml =>
     import cats.implicits._

@@ -3,7 +3,7 @@ package radium.dockerfile.execute
 import java.nio.file.Path
 
 import radium.dockerfile._
-import radium.dockerfile.arg._
+
 import radium.dockerfile.yaml._
 import radium.dockerfile.{ statement => s }
 import radium.dockerfile.implicits._
@@ -24,10 +24,10 @@ object Java extends ExecuteParser with Keyed {
 
   override def keyName = "java"
 
-  def jarFilePath = Arg.byKey[Path]("jar").required
+  def jarFilePath = Binding.byKey[Path]("jar").required
 
   override def parse(config: Config) = expandVars { yaml =>
-    jarFilePath.parse(yaml).map(Java.apply)
+    jarFilePath.bind(yaml).map(Java.apply)
   }
 
 }

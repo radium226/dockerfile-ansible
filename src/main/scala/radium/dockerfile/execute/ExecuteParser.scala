@@ -1,7 +1,7 @@
 package radium.dockerfile.execute
 
 import radium.dockerfile._
-import radium.dockerfile.arg.ValueParserImplicits
+import radium.dockerfile.yaml.ValueParserImplicits
 
 trait Keyed {
 

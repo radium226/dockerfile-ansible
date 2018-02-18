@@ -2,7 +2,7 @@ package radium.dockerfile.task
 
 import radium.dockerfile._
 import radium.dockerfile.yaml._
-import radium.dockerfile.arg._
+
 import radium.dockerfile.{ statement => s }
 import radium.dockerfile.implicits._
 import radium.dockerfile.transpilation._
@@ -26,13 +26,13 @@ object InstallDependencies extends TaskParser {
 
   override def supportedTaskNames = Seq("package")
 
-  def dependencyName = Arg.byKey[String]("name").required
+  def dependencyName = Binding.byKey[String]("name").required
 
   def apply(dependencyName: DependencyName): InstallDependencies = {
     new InstallDependencies(Seq(dependencyName))
   }
 
   override def parse(config: Config) = expandVars { yaml =>
-    dependencyName.parse(yaml).map(InstallDependencies.apply)
+    dependencyName.bind(yaml).map(InstallDependencies.apply)
   }
 }

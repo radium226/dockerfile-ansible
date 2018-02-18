@@ -5,6 +5,12 @@ tasks:
 # - create_user:
 #    name: "toto"
 #    system: yes
+ - Samousa:
+ - copy:
+    content: |
+      I have no idea what
+      I'm doing
+    dest: "/tmp/caca.txt"
  - copy:
     src: "./bim.txt"
     dest: "/bam/boum/bim/txt"
@@ -17,6 +23,7 @@ tasks:
    with_items:
     - "bim"
     - "bamboum"
+ - Chiotte:
  - package:
     name: "{{ item }}"
    with_items:
@@ -30,5 +37,6 @@ tasks:
 #    strip: yes
 
 execute:
+  david_jinola:
   java:
     jar: "coucou"

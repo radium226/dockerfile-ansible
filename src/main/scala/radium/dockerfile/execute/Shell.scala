@@ -1,7 +1,7 @@
 package radium.dockerfile.execute
 
 import radium.dockerfile._
-import radium.dockerfile.arg._
+
 import radium.dockerfile.yaml._
 import radium.dockerfile.transpilation._
 import radium.dockerfile.implicits._
@@ -26,10 +26,10 @@ object Shell extends ExecuteParser with Keyed {
 
   override def keyName: String = "shell"
 
-  def content = Arg.whole[Source].required
+  def content = Binding.whole[Source].required
 
   override def parse(config: Config) = expandVars { yaml =>
-    content.parse(yaml).map(Shell.apply)
+    content.bind(yaml).map(Shell.apply)
   }
 
 }

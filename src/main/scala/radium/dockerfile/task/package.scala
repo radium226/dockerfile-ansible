@@ -3,7 +3,7 @@ package radium.dockerfile
 import cats.Traverse
 import com.hubspot.jinjava.Jinjava
 import radium.dockerfile._
-import radium.dockerfile.arg._
+
 import radium.dockerfile.yaml._
 import radium.dockerfile.implicits._
 import radium.dockerfile.statement._

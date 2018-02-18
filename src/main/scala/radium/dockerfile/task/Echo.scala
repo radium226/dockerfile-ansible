@@ -2,7 +2,7 @@ package radium.dockerfile.task
 
 import radium.dockerfile._
 import radium.dockerfile.yaml._
-import radium.dockerfile.arg._
+
 import radium.dockerfile.{ statement => s }
 import radium.dockerfile.implicits._
 import radium.dockerfile.transpilation._
@@ -19,9 +19,9 @@ object Echo extends TaskParser {
 
   override def supportedTaskNames: Seq[TaskName] = Seq("echo")
 
-  def message = Arg.whole[String].required
+  def message = Binding.whole[String].required
 
   override def parse(config: Config) = expandVars { yaml =>
-    message.parse(yaml).map(Echo.apply)
+    message.bind(yaml).map(Echo.apply)
   }
 }

@@ -4,7 +4,7 @@ import cats.Traverse
 
 import radium.dockerfile._
 import radium.dockerfile.yaml._
-import radium.dockerfile.arg._
+
 import radium.dockerfile.transpilation._
 import radium.dockerfile.{ statement => s }
 import radium.dockerfile.implicits._
@@ -55,10 +55,10 @@ case class Default(command: Command) extends Execute {
 
 object Default extends ExecuteParser {
 
-  def command = Arg.whole[Command].required
+  def command = Binding.whole[Command].required
 
   override def parse(config: Config) = { (yaml, vars) =>
-    command.parse(yaml).map(Default.apply)
+    command.bind(yaml).map(Default.apply)
   }
 
 }

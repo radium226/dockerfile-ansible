@@ -1,22 +1,21 @@
-package radium.dockerfile.arg
+package radium.dockerfile.yaml
 
 import radium.dockerfile._
-import radium.dockerfile.yaml._
 import radium.dockerfile.implicits._
 
-sealed trait Arg[T] {
+sealed trait Binding[T] {
 
-  def parse(anyRef: AnyRef): Validated[T]
+  def bind(anyRef: AnyRef): Validated[T]
 
 }
 
-object Arg {
+object Binding {
 
-  private def doParse[T:ValueParser](anyRef: AnyRef): Validated[T] = {
-    implicitly[ValueParser[T]].parseValue(anyRef)
+  private def doParse[T:Binder](anyRef: AnyRef): Validated[T] = {
+    implicitly[Binder[T]].bind(anyRef)
   }
 
-  sealed trait Optional[T] extends Arg[Option[T]] {
+  sealed trait Optional[T] extends Binding[Option[T]] {
 
     def required: Required[T]
 
@@ -24,9 +23,9 @@ object Arg {
 
   object Optional {
 
-    case class Whole[T: ValueParser]() extends Optional[T] {
+    case class Whole[T: Binder]() extends Optional[T] {
 
-      override def parse(yaml: Yaml): Validated[Option[T]] = {
+      override def bind(yaml: Yaml): Validated[Option[T]] = {
         val validated = doParse[T](yaml)
         validated.fold({ _ => None }, { anyRef => Some(anyRef) }).valid
       }
@@ -34,8 +33,8 @@ object Arg {
       override def required: Required[T] = Required.Whole[T]()
     }
 
-    case class ByKey[T: ValueParser](key: Key) extends Optional[T] {
-      override def parse(yaml: Yaml): Validated[Option[T]] = yaml match {
+    case class ByKey[T: Binder](key: Key) extends Optional[T] {
+      override def bind(yaml: Yaml): Validated[Option[T]] = yaml match {
         case map: Map[Key, AnyRef] =>
           map.get(key) match {
             case Some(anyRef) =>
@@ -53,7 +52,7 @@ object Arg {
     }
   }
 
-  sealed trait Required[T] extends Arg[T] {
+  sealed trait Required[T] extends Binding[T] {
 
     import Required._
 
@@ -63,22 +62,22 @@ object Arg {
 
   object Required {
 
-    case class Transformed[T, U](arg: Required[T], f: Function[T, Validated[U]]) extends Required[U] {
+    case class Transformed[T, U](bind: Required[T], f: Function[T, Validated[U]]) extends Required[U] {
 
-      override def parse(yaml: Yaml): Validated[U] = {
-        arg.parse(yaml) andThen f
+      override def bind(yaml: Yaml): Validated[U] = {
+        bind.bind(yaml) andThen f
       }
 
     }
 
-    case class Whole[T: ValueParser]() extends Required[T] {
+    case class Whole[T: Binder]() extends Required[T] {
 
-      override def parse(yaml: Yaml): Validated[T] = doParse[T](yaml)
+      override def bind(yaml: Yaml): Validated[T] = doParse[T](yaml)
 
     }
 
-    case class ByKey[T: ValueParser](key: Key) extends Required[T] {
-      override def parse(yaml: Yaml): Validated[T] = yaml match {
+    case class ByKey[T: Binder](key: Key) extends Required[T] {
+      override def bind(yaml: Yaml): Validated[T] = yaml match {
         case map: Map[Key, AnyRef] =>
           map.get(key) match {
             case Some(anyRef) =>
@@ -94,8 +93,8 @@ object Arg {
 
   }
 
-  def whole[T:ValueParser]: Optional[T] = Optional.Whole[T]()
+  def whole[T:Binder]: Optional[T] = Optional.Whole[T]()
 
-  def byKey[T:ValueParser](key: Key): Optional[T] = Optional.ByKey[T](key)
+  def byKey[T:Binder](key: Key): Optional[T] = Optional.ByKey[T](key)
 
 }

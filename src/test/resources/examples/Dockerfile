@@ -5,6 +5,10 @@ RUN apt-get -y install curl \
 
 COPY ["bim", "bamboum"]
 
+RUN > /tmp/caca.txt \
+    echo I have no idea what >>/tmp/caca.txt \
+    echo I'm doing >>/tmp/caca.txt
+
 COPY ["./bim.txt", "/bam/boum/bim/txt"]
 
 RUN curl http://www.google.fr -O toto \
