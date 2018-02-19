@@ -1,12 +1,5 @@
 package radium.dockerfile
 
-import java.nio.file.{Files, Path}
-
-import scala.collection.JavaConverters._
-
-import org.yaml.snakeyaml.{ Yaml => SnakeYaml }
-import java.util.{List => JavaList, Map => JavaMap}
-
 import radium.dockerfile._
 import radium.dockerfile.task._
 import radium.dockerfile.yaml._

@@ -1,5 +1,6 @@
 package radium.dockerfile
 
+import radium.dockerfile.yaml._
 import radium.dockerfile.implicits._
 import radium.dockerfile.statement._
 

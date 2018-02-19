@@ -1,4 +1,4 @@
-package radium.dockerfile
+package radium
 
 trait OptionImplicits {
 

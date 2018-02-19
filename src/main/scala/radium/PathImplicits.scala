@@ -1,4 +1,4 @@
-package radium.dockerfile
+package radium
 
 import java.nio.file.{Path, Paths}
 

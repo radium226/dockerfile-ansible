@@ -69,35 +69,6 @@ package object dockerfile {
   trait Syntax extends ValidatedSyntax
 
 
-  trait Parser[T] {
-
-    private def renderTemplates(yaml: Yaml, vars: Vars): Yaml = {
-      val jinjava = new Jinjava
-      val context = vars.asJava
-      yaml match {
-        case yamlAsString: String =>
-          jinjava.render(yamlAsString, context)
-
-        case yamlAsMap: Map[String, AnyRef] =>
-          yamlAsMap.mapValues(renderTemplates(_, vars))
-
-        case yamlAsSeq: Seq[String] =>
-          yamlAsSeq.map(renderTemplates(_, vars))
-
-        case yaml =>
-          yaml
-      }
-
-    }
-
-    def expandVars(f: Yaml => Validated[T]): (Yaml, Vars) => Validated[T] = { (yaml, vars) =>
-      f(renderTemplates(yaml, vars))
-    }
-
-    def parse(config: Config): (Yaml, Vars) => Validated[T]
-
-  }
-
   trait No[T] {
 
     def empty: T
