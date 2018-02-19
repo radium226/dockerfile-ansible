@@ -1,7 +1,7 @@
 # Dockerfile.yml
 
 ## Goal
-I wanted this kind of tool after discovering that [Ansible Container](https://www.ansible.com/integrations/containers/ansible-container) is a great way to use Ansible roles to create Docker images but it fails with a single image because it's heavy leverage of Jinja template in order to configure connection between component. 
+I wanted this kind of tool after discovering that [Ansible Container](https://www.ansible.com/integrations/containers/ansible-container) is a great way to use Ansible roles to create Docker images but it fails with a single image because it's heavy rely on Jinja templates in order to configure components... And it's better to use `ENV_VAR` when using Docker!  
 
 I wanted a KISS tool which only provide an abstraction over standard Dockerfile, and that's all! 
 
